@@ -1,8 +1,8 @@
-name: Deploy to GitHub Pages
+name: Deploy Static Content to Pages
 
 on:
   push:
-    branches: ["main"] # Prüfe, ob dein Branch wirklich 'main' heißt!
+    branches: ["main"] # Falls dein Branch anders heißt, hier anpassen
 
 permissions:
   contents: read
@@ -10,36 +10,22 @@ permissions:
   id-token: write
 
 jobs:
-  build_site:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'npm'
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
 
-      - name: Install dependencies
-        run: npm install # Falls das fehlschlägt, versuch 'npm install --force'
-
-      - name: Build
-        run: npm run build
-
-      - name: Upload Artifacts
+      - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: "./dist" # Wichtig: Prüfe ob dein Ordner 'dist', 'build' oder 'spa' heißt!
+          # Wenn deine index.html direkt im Hauptverzeichnis liegt, nimm "."
+          # Wenn sie in einem Unterordner liegt (z.B. dist/spa), nimm "./dist/spa"
+          path: "." 
 
-  deploy:
-    needs: build_site
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
